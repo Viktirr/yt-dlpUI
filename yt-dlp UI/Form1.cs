@@ -5,6 +5,7 @@ using System.IO; // Needed for reading and saving user data
 using System.Threading; // Needed to avoid freezes while it downloads
 using System.Web;
 using System.Numerics;
+using System.Collections;
 
 namespace yt_dlp_UI
 {
@@ -397,61 +398,37 @@ namespace yt_dlp_UI
             Form thisForm = ytdlpGUI.ActiveForm;
             int sizeAdjust = 90;
             int dpiSizeAdjust = (int)Math.Floor((float)sizeAdjust * (float)monitorScalingFactor);
+            Control[] anchors = { advancedOptionsToggle, highQualityCheckbox, startFromCheckBox, startFromTextBox, endAtCheckBox, endAtTextBox, startFromSecondsLabel, endAtSecondsLabel}; // I believe this could be optimised further by putting it as a starting variable
+            Control[] anchorsSide = { horizontalDivider };
             switch (advancedOptionsToggle.Checked) {
                 case true:
                     // Adjust the size of the form while making sure that nothing comes out of the application
                     // Anchor to top left so the bottom options show up
-                    ConOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-                    advancedOptionsToggle.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    horizontalDivider.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
-                    highQualityCheckbox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    ConOutput.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                    for (int i = 0; i < anchors.Length; i++) { anchors[i].Anchor = AnchorStyles.Left | AnchorStyles.Top; }
+                    for (int i = 0; i < anchorsSide.Length; i++) { anchorsSide[i].Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right; }
                     thisForm.Size = new Size(Width, Height + dpiSizeAdjust); // Adjust form size
-                    // Anchor back to their original places
-                    ConOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-                    advancedOptionsToggle.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    horizontalDivider.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
-                    highQualityCheckbox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
                     thisForm.MinimumSize = new Size(thisForm.MinimumSize.Width, thisForm.MinimumSize.Height + dpiSizeAdjust); // Adjust minimum form size
+
+                    // Anchor back to their original places
+                    ConOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                    for (int i = 0; i < anchors.Length; i++) { anchors[i].Anchor = AnchorStyles.Left | AnchorStyles.Bottom; }
+                    for (int i = 0; i < anchorsSide.Length; i++) { anchorsSide[i].Anchor = AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right; }
 
                     break;
                 case false:
                     // Adjust the size of the form while making sure that nothing comes out of the application
                     // Anchor to the top left so the bottom options hide
-                    ConOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-                    advancedOptionsToggle.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    horizontalDivider.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top;
-                    highQualityCheckbox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    startFromSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
-                    endAtSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Top;
+                    ConOutput.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
+                    for (int i = 0; i < anchors.Length; i++) { anchors[i].Anchor = AnchorStyles.Left | AnchorStyles.Top; }
+                    for (int i = 0; i < anchorsSide.Length; i++) { anchorsSide[i].Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right; }
                     thisForm.MinimumSize = new Size(thisForm.MinimumSize.Width, thisForm.MinimumSize.Height - dpiSizeAdjust); // Adjust minimum form size
                     thisForm.Size = new Size(Width, Height - dpiSizeAdjust); // Adjust form size
-                    // Anchor back to their original places
-                    ConOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
-                    advancedOptionsToggle.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    horizontalDivider.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Bottom;
-                    highQualityCheckbox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    startFromSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
-                    endAtSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+
+                    //Anchor back to their original places
+                    ConOutput.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+                    for (int i = 0; i < anchors.Length; i++) { anchors[i].Anchor = AnchorStyles.Left | AnchorStyles.Bottom; }
+                    for (int i = 0; i < anchorsSide.Length; i++) { anchorsSide[i].Anchor = AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right; }
 
                     break;
             }
