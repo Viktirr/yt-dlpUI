@@ -58,6 +58,8 @@
             this.endAtTextBox = new System.Windows.Forms.TextBox();
             this.startFromSecondsLabel = new System.Windows.Forms.Label();
             this.endAtSecondsLabel = new System.Windows.Forms.Label();
+            this.advancedArgsTextBox = new System.Windows.Forms.TextBox();
+            this.advancedArgsCheckBox = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnSelYtdlpPath
@@ -172,6 +174,7 @@
             this.selectMediaFormat.Font = new System.Drawing.Font("Segoe UI", 10.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point);
             this.selectMediaFormat.FormattingEnabled = true;
             this.selectMediaFormat.Items.AddRange(new object[] {
+            "None",
             "Video (mp4)",
             "Video (webm)",
             "Audio (mp3)",
@@ -339,12 +342,35 @@
             this.endAtSecondsLabel.TabIndex = 33;
             this.endAtSecondsLabel.Text = "seconds";
             // 
+            // advancedArgsTextBox
+            // 
+            this.advancedArgsTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.advancedArgsTextBox.Enabled = false;
+            this.advancedArgsTextBox.Location = new System.Drawing.Point(8, 542);
+            this.advancedArgsTextBox.Name = "advancedArgsTextBox";
+            this.advancedArgsTextBox.Size = new System.Drawing.Size(764, 23);
+            this.advancedArgsTextBox.TabIndex = 34;
+            // 
+            // advancedArgsCheckBox
+            // 
+            this.advancedArgsCheckBox.AutoSize = true;
+            this.advancedArgsCheckBox.Location = new System.Drawing.Point(8, 517);
+            this.advancedArgsCheckBox.Name = "advancedArgsCheckBox";
+            this.advancedArgsCheckBox.Size = new System.Drawing.Size(239, 19);
+            this.advancedArgsCheckBox.TabIndex = 35;
+            this.advancedArgsCheckBox.Text = "Enable additional arguments (advanced)";
+            this.advancedArgsCheckBox.UseVisualStyleBackColor = true;
+            this.advancedArgsCheckBox.CheckedChanged += new System.EventHandler(this.advancedArgsCheckBox_CheckedChanged);
+            // 
             // ytdlpGUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(784, 441);
+            this.Controls.Add(this.advancedArgsCheckBox);
+            this.Controls.Add(this.advancedArgsTextBox);
             this.Controls.Add(this.endAtSecondsLabel);
             this.Controls.Add(this.startFromSecondsLabel);
             this.Controls.Add(this.endAtTextBox);
@@ -414,5 +440,7 @@
         private TextBox endAtTextBox;
         private Label startFromSecondsLabel;
         private Label endAtSecondsLabel;
+        private TextBox advancedArgsTextBox;
+        private CheckBox advancedArgsCheckBox;
     }
 }

@@ -12,6 +12,8 @@ namespace yt_dlp_UI
         public static string highQualityStringArg; // String for downloading at the highest quality available, used in StartButton_Click in Form1
         public static string sectionDownloadStringArg; // String for downloading only a section of a video, used in StartButton_Click in Form1
 
+        public static string additionalArgs;
+
         public static System.Diagnostics.Process cmdThread; // Declaring a null thread before it is actually used, I don't remember why I put this here.
 
         /// <summary>

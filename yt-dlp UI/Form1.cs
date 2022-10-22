@@ -127,6 +127,9 @@ namespace yt_dlp_UI
                     case "Audio (ogg)":
                         Program.mediaFormat = " -x --audio-format vorbis";
                         break;
+                    case "None":
+                        Program.mediaFormat = "";
+                        break;
                     default:
                         MessageBox.Show("Couldn't retrieve media format. Downloading as video (mp4)...");
                         Program.mediaFormat = " --format mp4";
@@ -169,6 +172,8 @@ namespace yt_dlp_UI
                         }
                         break;
                 }
+
+                if (advancedArgsCheckBox.Checked == true) { Program.additionalArgs = advancedArgsTextBox.Text; } // Check if additional arguments are enabled, if so, put them in a string (probably more efficient to just grab the value from the TextBox)
                 Thread t = new Thread(CmdThread);
                 t.Start();
             }
@@ -180,7 +185,7 @@ namespace yt_dlp_UI
             m_output = new StringBuilder();
             ProcessStartInfo cmdStartInfo = new ProcessStartInfo();
             cmdStartInfo.FileName = @"C:\Windows\System32\cmd.exe";
-            cmdStartInfo.Arguments = "/c " + Program.ytdlpFilePath + " --ffmpeg-location " + Program.ffmpegFilePath + " -o \"" + Program.saveLocation + "\\%(title)s [%(id)s].%(ext)s\"" + " " + Program.highQualityStringArg + Program.sectionDownloadStringArg + mediaFormat + " " + LinkTextBox.Text;
+            cmdStartInfo.Arguments = "/c " + Program.ytdlpFilePath + " --ffmpeg-location " + Program.ffmpegFilePath + " -o \"" + Program.saveLocation + "\\%(title)s [%(id)s].%(ext)s\"" + " " + Program.highQualityStringArg + Program.sectionDownloadStringArg + " " + Program.additionalArgs + " " + mediaFormat + " " + LinkTextBox.Text;
             cmdStartInfo.RedirectStandardOutput = true;
             cmdStartInfo.RedirectStandardError = true;
             cmdStartInfo.RedirectStandardInput = true;
@@ -298,7 +303,7 @@ namespace yt_dlp_UI
             {
                 _userData.SetLength(0);
             }
-            using (_userData) // Never heard of this function (using), I don't know where this is used?
+            using (_userData)
             {
                 // Store the location of yt-dlp, ffmpeg and save location variables
                 // This doesn't seem to be the best way to do it, since most games and programs use some kind of variable name before the variable content. (i.e. bResolutionScale = 0.5)
@@ -338,10 +343,32 @@ namespace yt_dlp_UI
                         MessageBox.Show("Something went wrong while saving save location information to user settings file", ex.ToString());
                     }
                 }
+                if (Program.additionalArgs == "" || Program.additionalArgs == null)
+                {
+                    try
+                    {
+                        AddText(_userData, "\n" + "-");
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Something went wrong while saving additional arguments to user settings file", ex.ToString());
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        AddText(_userData, "\n" + Program.additionalArgs.ToString());
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show("Something went wrong while saving additional arguments to user settings file", ex.ToString());
+                    }
+                }
             }
             _userData.Dispose();
         }
-        private static void AddText(FileStream fs, string value) // Gets a string, converts them into bytes, then stores it in a string.
+        private static void AddText(FileStream fs, string value) // Gets a string, converts them into bytes, then stores it in UTF-8 encoded letters, basically a string again.
         {
             byte[] info = new UTF8Encoding(true).GetBytes(value);
             fs.Write(info, 0, info.Length);
@@ -349,7 +376,7 @@ namespace yt_dlp_UI
 
         private void ytdlpGUI_Load(object sender, EventArgs e) // While the program is loading...
         {
-            selectMediaFormat.SelectedIndex = 2; // Select Audio (mp3)
+            selectMediaFormat.SelectedIndex = 3; // Select Audio (mp3)
             
             //Anchor things as they should be, they're not done in the Designer to make further development easier
             ConOutput.Anchor = AnchorStyles.Left | AnchorStyles.Right | AnchorStyles.Top | AnchorStyles.Bottom;
@@ -362,10 +389,12 @@ namespace yt_dlp_UI
             endAtTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
             startFromSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
             endAtSecondsLabel.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+            advancedArgsCheckBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom;
+            advancedArgsTextBox.Anchor = AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Right;
             try // Check for the userdata file and it's contents.
             {
                 var lineCount = File.ReadAllLines(Application.UserAppDataPath + "\\userdata.txt").Length;
-                if (lineCount == 5)
+                if (lineCount == 6)
                 {
                     StreamReader _userData = new StreamReader(Application.UserAppDataPath + "\\userdata.txt");
 
@@ -374,12 +403,15 @@ namespace yt_dlp_UI
                     Program.ffmpegFilePath = _userData.ReadLine();
                     Program.ffmpegFileName = _userData.ReadLine();
                     Program.saveLocation = _userData.ReadLine();
+                    Program.additionalArgs = _userData.ReadLine();
                     if (Program.saveLocation != null) { Program.hasCustomSaveLocation = true; }
                     _userData.Dispose();
 
                     YtdlpDirText.Text = Program.ytdlpFilePath;
                     ffmpegDirText.Text = Program.ffmpegFilePath;
                     outputDirText.Text = Program.saveLocation + " (Automatically assigned)";
+                    if (Program.additionalArgs == "-") { Program.additionalArgs = null; }
+                    advancedArgsTextBox.Text = Program.additionalArgs;
                 }
                 else
                 {
@@ -392,14 +424,14 @@ namespace yt_dlp_UI
             }
         }
 
-        private void advancedOptionsToggle_CheckedChanged(object sender, EventArgs e)
+        private void advancedOptionsToggle_CheckedChanged(object sender, EventArgs e) // Upon enabling advanced options, change the size of the form while keeping everything in place.
         {
             float monitorScalingFactor = (float)this.DeviceDpi / 96f;
             Form thisForm = ytdlpGUI.ActiveForm;
-            int sizeAdjust = 90;
+            int sizeAdjust = 136;
             int dpiSizeAdjust = (int)Math.Floor((float)sizeAdjust * (float)monitorScalingFactor);
-            Control[] anchors = { advancedOptionsToggle, highQualityCheckbox, startFromCheckBox, startFromTextBox, endAtCheckBox, endAtTextBox, startFromSecondsLabel, endAtSecondsLabel}; // I believe this could be optimised further by putting it as a starting variable
-            Control[] anchorsSide = { horizontalDivider };
+            Control[] anchors = { advancedOptionsToggle, highQualityCheckbox, startFromCheckBox, startFromTextBox, endAtCheckBox, endAtTextBox, startFromSecondsLabel, endAtSecondsLabel, advancedArgsCheckBox }; // I believe this could be optimised further by putting it as a starting variable
+            Control[] anchorsSide = { horizontalDivider, advancedArgsTextBox };
             switch (advancedOptionsToggle.Checked) {
                 case true:
                     // Adjust the size of the form while making sure that nothing comes out of the application
@@ -434,7 +466,7 @@ namespace yt_dlp_UI
             }
         }
 
-        private void highQualityCheckbox_CheckedChanged(object sender, EventArgs e)
+        private void highQualityCheckbox_CheckedChanged(object sender, EventArgs e) // Check if "Use highest quality available is enabled, if so, use -f bestaudio+bestvideo and change the media format to webm.
         {
             switch (highQualityCheckbox.Checked)
             {
@@ -450,7 +482,7 @@ namespace yt_dlp_UI
             }
         }
 
-        private void startFromCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void startFromCheckBox_CheckedChanged(object sender, EventArgs e) // If start from check box is enabled, enable the TextBox beside it.
         {
             switch (startFromCheckBox.Checked)
             {
@@ -463,7 +495,7 @@ namespace yt_dlp_UI
             }
         }
 
-        private void endAtCheckBox_CheckedChanged(object sender, EventArgs e)
+        private void endAtCheckBox_CheckedChanged(object sender, EventArgs e) // If end at check box is enabled, enable the TextBox beside it.
         {
             switch (endAtCheckBox.Checked)
             {
@@ -472,6 +504,33 @@ namespace yt_dlp_UI
                     break;
                 case false:
                     endAtTextBox.Enabled = false;
+                    break;
+            }
+        }
+
+        private void advancedArgsCheckBox_CheckedChanged(object sender, EventArgs e) // Upon enabling additional arguments, disable all extra functionality.
+        {
+            switch (advancedArgsCheckBox.Checked)
+            {
+                case true:
+                    advancedArgsTextBox.Enabled = true;
+                    highQualityCheckbox.Enabled = false;
+                    highQualityCheckbox.Checked = false;
+                    startFromCheckBox.Enabled = false;
+                    startFromCheckBox.Checked = false;
+                    endAtCheckBox.Enabled = false;
+                    endAtCheckBox.Checked = false;
+                    selectMediaFormat.Enabled = false;
+                    selectMediaFormat.SelectedIndex = 0;
+                    break;
+
+                case false:
+                    advancedArgsTextBox.Enabled = false;
+                    selectMediaFormat.Enabled = true;
+                    highQualityCheckbox.Enabled = true;
+                    startFromCheckBox.Enabled = true;
+                    endAtCheckBox.Enabled = true;
+                    selectMediaFormat.SelectedIndex = 3;
                     break;
             }
         }
